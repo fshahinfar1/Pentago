@@ -27,16 +27,28 @@ black_marble = pygame.transform.scale(black_marble, (30, 30))
 lock = threading.Lock()
 
 
+def get_position_on_quarter(q_top_left, row, col):
+    qx, qy = q_top_left
+    row_y = [25, 75, 125]
+    col_x = [20, 75, 130]
+    return (qx + col_x[col], qy + row_y[row]) 
+
+
 def draw():
     screen.fill((0, 0, 0))
-    screen.blit(quarter, (10, 10))  # q = 0
-    screen.blit(quarter, (195, 10))  # q = 1
-    screen.blit(quarter, (10, 195))  # q = 2
-    screen.blit(quarter, (195, 195))  # q = 3
+    quarter_pos = [(10, 10), (195, 10), (10, 195), (195, 195)]
+    screen.blit(quarter, quarter_pos[0])  # q = 0
+    screen.blit(quarter, quarter_pos[1])  # q = 1
+    screen.blit(quarter, quarter_pos[2])  # q = 2
+    screen.blit(quarter, quarter_pos[3])  # q = 3
     for i in range(6):
         for j in range(6):
             c = board.get_cell(i, j)
-            pos = (60 * j + 30, 60 * i + 30)
+            row = i % 3
+            col = j % 3
+            q = (i // 3) * 2 + (j // 3)
+            # pos = (60 * j + 30, 60 * i + 30)
+            pos = get_position_on_quarter(quarter_pos[q], row, col)
             if c == 1:  # black
                 screen.blit(black_marble, pos)
             elif c == 2:  # red
@@ -99,10 +111,12 @@ def run():
                 if event.type == pygame.QUIT:
                         run = False
                         break
-    s.close()
-    pygame.quit()
-    drawThread.stop()
-    updateThread.stop()
+    finally:
+        print("Finally cleaning up")
+        s.close()
+        pygame.quit()
+        drawThread.stop()
+        updateThread.stop()
 
 
 if __name__ == "__main__":
