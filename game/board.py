@@ -207,9 +207,10 @@ class Board:
 
 
 class Quarter:
-    def __init__(self):
+    def __init__(self, size=3):
         # create an empty quarter
-        self.grid = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.grid = [[0] * size for i in range(size)]
+        self.size = size
 
     def insert(self, row, column, player):
         if self.grid[row][column] == 0:
@@ -229,46 +230,51 @@ class Quarter:
             raise TypeError("direction should be int")
         if direction != -1 and direction != 1:
             raise ValueError("direction should be (-1 or 1)")
-        for i in range(3):
-            for j in range(i, 3):
+        size = self.size
+        for i in range(size):
+            for j in range(i, size):
                 if direction == -1:
-                    self.grid[i][j], self.grid[2 - j][i] = self.grid[2 - j][i], self.grid[i][j]
+                    self.grid[i][j], self.grid[size - 1 - j][i] = self.grid[size - 1 - j][i], self.grid[i][j]
                 elif direction == 1:
-                    self.grid[i][j], self.grid[j][2 - i] = self.grid[j][2 - i], self.grid[i][j]
+                    self.grid[i][j], self.grid[j][size - 1 - i] = self.grid[j][size - 1 - i], self.grid[i][j]
 
     def get_cell(self, row, col):
-        return self.grid[row][col]
+        size = self.size
+        if row > -1  and row < size:
+            if col > -1 and col < size:
+                return self.grid[row][col]
+        return -1
 
     def get_row(self, row):
-        if row < 0 or row > 2:
-            raise GameException("row is between 0 and 2")
+        if row < 0 or row >= self.size:
+            raise GameException("row is between 0 and size value")
         return tuple(self.grid[row])
 
     def get_col(self, col):
-        if col < 0 or col > 2:
-            raise GameException("row is between 0 and 2")
-        return tuple(self.grid[i][col] for i in range(3))
+        if col < 0 or col >= self.size:
+            raise GameException("row is between 0 and size value")
+        return tuple(self.grid[i][col] for i in range(self.size))
 
     def is_filled(self):
-        for i in range(3):
-            for j in range(3):
+        for i in range(self.size):
+            for j in range(self.size):
                 if self.grid[i][j] == 0:
                     return False
         return True
 
     def __str__(self):
         string = ""
-        for i in range(3):
-            for j in range(3):
+        for i in range(self.size):
+            for j in range(self.size):
                 string += str(self.grid[i][j]) + ","
 
         return string
 
     def set(self, string):
         data = string.split(',')
-        for i in range(3):
-            for j in range(3):
-                self.grid[i][j] = int(data[i * 3 + j])
+        for i in range(self.size):
+            for j in range(self.size):
+                self.grid[i][j] = int(data[i * self.size + j])
 
 
 class GameException(Exception):
