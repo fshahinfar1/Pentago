@@ -30,9 +30,10 @@ class Player:
                     raise ValueError
                 if t[2] < 0 or t[2] > 3:
                     raise ValueError
-                if t[4] != -1 and t[4] != 1:
+                if t[3] != -1 and t[3] != 1:
                     raise ValueError
                 break
             except ValueError:
                 print("please enter correct values:")
+                print("row column quarter direction")
         return t
