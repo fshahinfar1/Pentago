@@ -28,39 +28,29 @@ lock = threading.Lock()
 
 
 def draw():
-    # run = True
-    # while run:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             run = False
-    #             break
-        # draw
     screen.fill((0, 0, 0))
     screen.blit(quarter, (10, 10))  # q = 0
     screen.blit(quarter, (195, 10))  # q = 1
     screen.blit(quarter, (10, 195))  # q = 2
     screen.blit(quarter, (195, 195))  # q = 3
-    with lock:
-        for i in range(6):
-            for j in range(6):
-                c = board.get_cell(i, j)
-                pos = (60 * j + 30, 60 * i + 30)
-                if c == 1:  # black
-                    screen.blit(black_marble, pos)
-                elif c == 2:  # red
-                    screen.blit(red_marble, pos)
+    for i in range(6):
+        for j in range(6):
+            c = board.get_cell(i, j)
+            pos = (60 * j + 30, 60 * i + 30)
+            if c == 1:  # black
+                screen.blit(black_marble, pos)
+            elif c == 2:  # red
+                screen.blit(red_marble, pos)
     pygame.display.update()
     clock.tick(30)
-# pygame.quit()
 
 
 def update(s):
     # while True:  # while game is on
     print("updateThread")
-    with lock:
-        data = s.recv(128).decode()
-        board.set(data)
-        board.show()
+    data = s.recv(128).decode()
+    board.set(data)
+    board.show()  # print board to console
 
 
 class drawThreading(threading.Thread):
@@ -68,7 +58,14 @@ class drawThreading(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        draw()
+        run = True
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        run = False
+                        break
+            draw()
+        pygame.quit()
 
 
 class updateThreading(threading.Thread):
@@ -91,16 +88,17 @@ def run():
     drawThread.start()
     try:
         while True:
+            updateThread.join()
             updateThread.run()
-            drawThread.run()
-    except:
+    except Exception as e:
+        print(e)
+        print("Error")
         run = True
         while run:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                         run = False
                         break
-            drawThread.run()
     s.close()
     pygame.quit()
     drawThread.stop()

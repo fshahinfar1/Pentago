@@ -2,6 +2,7 @@ from server import server
 from GameBoardShowCase import show_case_client
 from client import client, client_ai
 import threading
+from time import sleep
 
 
 class ServerThread(threading.Thread):
@@ -41,12 +42,15 @@ class ClientThread(threading.Thread):
 
 lock = threading.Lock()
 serverT = ServerThread()
-with lock:
-    show_caseT = ShowCaseThread()
+show_caseT = ShowCaseThread()
 client_aiT = ClientAiThread()
 clientT = ClientThread()
 
 serverT.start()
+sleep(1)
+
 show_caseT.start()
+sleep(1)
+
 client_aiT.start()
 clientT.start()
